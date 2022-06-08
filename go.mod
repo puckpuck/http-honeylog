@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/honeycombio/dynsampler-go v0.2.1
 	github.com/honeycombio/libhoney-go v1.15.8
+	github.com/honeycombio/urlshaper v0.0.0-20211228212415-ac8d7d936154
 )
 
 require (

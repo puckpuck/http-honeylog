@@ -16,6 +16,7 @@ import (
 
 	"github.com/honeycombio/dynsampler-go"
 	"github.com/honeycombio/libhoney-go"
+	"github.com/honeycombio/urlshaper"
 )
 
 const DefaultServerPort = "8080"
@@ -24,6 +25,7 @@ const MaxLineLength = 65536 // set this to the maximum size we expect log lines 
 
 var sampler *dynsampler.EMASampleRate
 var samplingFields []string
+var urlFields []string
 
 func main() {
 
@@ -47,6 +49,9 @@ func main() {
 		os.Exit(101)
 	}
 	samplingFields = strings.Split(skeys, ",")
+
+	// get URL fields to be parsed
+	urlFields = strings.Split(os.Getenv("HONEYCOMB_URL_FIELDS"), ",")
 
 	// Create and start sampler
 	rate, err := strconv.Atoi(os.Getenv("HONEYCOMB_SAMPLE_RATE"))
@@ -129,11 +134,6 @@ func readNewData(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			err := ev.SendPresampled()
-			if err != nil {
-				return
-			}
-
 			err = ev.SendPresampled()
 			if err != nil {
 				fmt.Printf("event send error %v, raw data: %s\n", err, string(rawData))
@@ -154,16 +154,37 @@ func cleanData(data map[string]interface{}) {
 	// Use this to perform any general data cleanup
 
 	for k, v := range data {
-		switch reflect.TypeOf(v).Kind() {
-		case reflect.Slice:
-			// if value is a slice, convert to a string slice, and use a string representation of it
-			// if the slice is a slice of objects this will not produce desired results
+		// if value is a slice, convert to a string slice, and use a string representation of it
+		// if the slice is a slice of objects this will not produce desired results
+		if reflect.TypeOf(v).Kind() == reflect.Slice {
 			sval := reflect.ValueOf(v)
 			newVal := make([]string, sval.Len())
 			for i := 0; i < sval.Len(); i++ {
 				newVal[i] = fmt.Sprintf("%v", sval.Index(i).Interface())
 			}
 			data[k] = strings.Join(newVal, ",")
+		}
+
+		// if the field is a URL field, use urlshaper to break it out into its components
+		shaper := &urlshaper.Parser{}
+		for _, f := range urlFields {
+			if k == f {
+				res, err := shaper.Parse(fmt.Sprintf("%v", v))
+				if err == nil {
+					data[k+".path"] = res.Path
+					for pk, pv := range res.PathFields {
+						data[k+".pathFields."+pk] = strings.Join(pv, ",")
+					}
+					data[k+".pathShape"] = res.PathShape
+					data[k+".query"] = res.Query
+					for qk, qv := range res.QueryFields {
+						data[k+".queryFields."+qk] = strings.Join(qv, ",")
+					}
+					data[k+".queryShape"] = res.QueryShape
+					data[k+".uri"] = res.URI
+				}
+			}
+			break
 		}
 	}
 }

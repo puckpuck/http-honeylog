@@ -18,6 +18,8 @@ github.com/honeycombio/dynsampler-go v0.2.1 h1:IbhjbdB0IbLSZn7xVYuk6jjk/ZDk/EO+D
 github.com/honeycombio/dynsampler-go v0.2.1/go.mod h1:BOeTUPT6fCRH5X/+QqF6Kza3IyLp9uSq/rWgEtI4aZI=
 github.com/honeycombio/libhoney-go v1.15.8 h1:TECEltZ48K6J4NG1JVYqmi0vCJNnHYooFor83fgKesA=
 github.com/honeycombio/libhoney-go v1.15.8/go.mod h1:+tnL2etFnJmVx30yqmoUkVyQjp7uRJw0a2QGu48lSyY=
+github.com/honeycombio/urlshaper v0.0.0-20211228212415-ac8d7d936154 h1:v+0yi/S8nhtgw+bSRi6nIPi0DH5Hlgk4/7XeS3M0Fro=
+github.com/honeycombio/urlshaper v0.0.0-20211228212415-ac8d7d936154/go.mod h1:2CQJZ3RJ2uC2Mp3zJbSkVbFw9iZdCpWwymuADPZYFu4=
 github.com/klauspost/compress v1.13.6 h1:P76CopJELS0TiO2mebmnzgWaajssP/EszplttgQxcgc=
 github.com/klauspost/compress v1.13.6/go.mod h1:/3/Vjq9QcHkK5uEr5lBEmyoZ1iFhe47etQ6QUkpK6sk=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
