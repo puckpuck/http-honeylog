@@ -28,6 +28,7 @@ var samplingFields []string
 func main() {
 
 	// Initialize and configure libhoney
+	libhoney.UserAgentAddition = "http-honeylog/0.1"
 	err := libhoney.Init(libhoney.Config{
 		APIKey:  os.Getenv("HONEYCOMB_API_KEY"),
 		Dataset: os.Getenv("HONEYCOMB_DATASET"),
@@ -36,8 +37,7 @@ func main() {
 		fmt.Printf("fatal error initializing libhoney: %v\n", err)
 		os.Exit(100)
 	}
-	libhoney.UserAgentAddition = "http-honeylog"
-	libhoney.AddField("event.parser", "http-honeylog")
+	libhoney.AddField("event.parser", "http-honeylog/0.1")
 	defer libhoney.Close() // Flush any pending calls to Honeycomb
 
 	// get sampling keys
@@ -127,6 +127,11 @@ func readNewData(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				fmt.Printf("event add error %v, raw data: %s\n", err, string(rawData))
 				continue
+			}
+
+			err := ev.SendPresampled()
+			if err != nil {
+				return
 			}
 
 			err = ev.SendPresampled()
